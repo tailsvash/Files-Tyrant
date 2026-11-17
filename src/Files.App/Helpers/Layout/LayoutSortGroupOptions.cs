@@ -339,6 +339,23 @@ namespace Files.App.Helpers
 			=> GetBuiltInSortCommand(id) is null && id != ExplorerTagsId;
 
 		/// <summary>
+		/// Gets the labels of the day, month and year group options of the specified date, when it has its own.
+		/// </summary>
+		public static (string Day, string Month, string Year)? GetDateUnitLabels(string id)
+		{
+			return id switch
+			{
+				DetailsLayoutColumnIds.DateModified => (Strings.DayUpdated, Strings.MonthUpdated, Strings.YearUpdated),
+				DetailsLayoutColumnIds.DateCreated => (Strings.DayCreated, Strings.MonthCreated, Strings.YearCreated),
+				DetailsLayoutColumnIds.DateDeleted => (Strings.DayDeleted, Strings.MonthDeleted, Strings.YearDeleted),
+				DetailsLayoutColumnIds.GitLastCommitDate => (Strings.DayCommitted, Strings.MonthCommitted, Strings.YearCommitted),
+				DateTakenId => (Strings.DayTaken, Strings.MonthTaken, Strings.YearTaken),
+				MediaCreatedId => (Strings.DayRecorded, Strings.MonthRecorded, Strings.YearRecorded),
+				_ => null,
+			};
+		}
+
+		/// <summary>
 		/// Gets whether the values of the specified property are dates, which can be grouped by year, month or day.
 		/// </summary>
 		public static bool IsDateProperty(string id)
