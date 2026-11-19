@@ -250,6 +250,35 @@
 					IsOn="{x:Bind ViewModel.ShowTabActions, Mode=TwoWay}" />
 			</wctcontrols:SettingsCard>
 
+			<!--  Clock  -->
+			<wctcontrols:SettingsExpander Header="{helpers:ResourceString Name=ShowClock}">
+				<wctcontrols:SettingsExpander.HeaderIcon>
+					<FontIcon Glyph="&#xE121;" />
+				</wctcontrols:SettingsExpander.HeaderIcon>
+
+				<ToggleSwitch
+					AutomationProperties.AutomationControlType="Custom"
+					AutomationProperties.Name="{helpers:ResourceString Name=ShowClock}"
+					IsOn="{x:Bind ViewModel.ShowClock, Mode=TwoWay}" />
+
+				<wctcontrols:SettingsExpander.Items>
+					<!--  24-hour format  -->
+					<wctcontrols:SettingsCard Header="{helpers:ResourceString Name=ClockUse24HourFormat}" IsEnabled="{x:Bind ViewModel.ShowClock, Mode=OneWay}">
+						<ToggleSwitch AutomationProperties.Name="{helpers:ResourceString Name=ClockUse24HourFormat}" IsOn="{x:Bind ViewModel.ClockUse24HourFormat, Mode=TwoWay}" />
+					</wctcontrols:SettingsCard>
+
+					<!--  Seconds  -->
+					<wctcontrols:SettingsCard Header="{helpers:ResourceString Name=ClockShowSeconds}" IsEnabled="{x:Bind ViewModel.ShowClock, Mode=OneWay}">
+						<ToggleSwitch AutomationProperties.Name="{helpers:ResourceString Name=ClockShowSeconds}" IsOn="{x:Bind ViewModel.ClockShowSeconds, Mode=TwoWay}" />
+					</wctcontrols:SettingsCard>
+
+					<!--  Date  -->
+					<wctcontrols:SettingsCard Header="{helpers:ResourceString Name=ClockShowDate}" IsEnabled="{x:Bind ViewModel.ShowClock, Mode=OneWay}">
+						<ToggleSwitch AutomationProperties.Name="{helpers:ResourceString Name=ClockShowDate}" IsOn="{x:Bind ViewModel.ClockShowDate, Mode=TwoWay}" />
+					</wctcontrols:SettingsCard>
+				</wctcontrols:SettingsExpander.Items>
+			</wctcontrols:SettingsExpander>
+
 			<!--  Toolbar  -->
 			<wctcontrols:SettingsExpander Header="{helpers:ResourceString Name=AddressBar}">
 				<wctcontrols:SettingsExpander.HeaderIcon>

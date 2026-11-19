@@ -160,6 +160,34 @@ namespace Files.App.Services.Settings
 		}
 
 		/// <inheritdoc/>
+		public bool ShowClock
+		{
+			get => Get(true);
+			set => Set(value);
+		}
+
+		/// <inheritdoc/>
+		public bool ClockUse24HourFormat
+		{
+			get => Get(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Contains('H'));
+			set => Set(value);
+		}
+
+		/// <inheritdoc/>
+		public bool ClockShowSeconds
+		{
+			get => Get(false);
+			set => Set(value);
+		}
+
+		/// <inheritdoc/>
+		public bool ClockShowDate
+		{
+			get => Get(false);
+			set => Set(value);
+		}
+
+		/// <inheritdoc/>
 		public bool ShowShelfPaneToggleButton
 		{
 			get => Get(false);

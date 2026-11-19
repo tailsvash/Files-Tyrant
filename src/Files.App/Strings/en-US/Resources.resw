@@ -4339,6 +4339,18 @@
   <data name="ShowTabActions" xml:space="preserve">
     <value>Show tab actions button in the title bar</value>
   </data>
+  <data name="ShowClock" xml:space="preserve">
+    <value>Show clock in the title bar</value>
+  </data>
+  <data name="ClockUse24HourFormat" xml:space="preserve">
+    <value>Use 24-hour time</value>
+  </data>
+  <data name="ClockShowSeconds" xml:space="preserve">
+    <value>Show seconds</value>
+  </data>
+  <data name="ClockShowDate" xml:space="preserve">
+    <value>Show date</value>
+  </data>
   <data name="ArrangePanes" xml:space="preserve">
     <value>Arrange panes</value>
   </data>

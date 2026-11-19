@@ -26,6 +26,10 @@ namespace Files.App.UserControls.TabBar
 
 		private readonly DispatcherTimer tabHoverTimer = new();
 
+		private readonly DispatcherTimer clockTimer = new() { Interval = TimeSpan.FromSeconds(1) };
+
+		private string _ClockText = string.Empty;
+
 		private TabViewItem? hoveredTabViewItem;
 
 		// Tab that currently shows the drop indicator
@@ -56,6 +60,22 @@ namespace Files.App.UserControls.TabBar
 		public bool AllowTabsDrag
 			=> WindowContext.CanDragAndDrop;
 
+		public bool ShowClock
+			=> AppearanceSettingsService.ShowClock;
+
+		public string ClockText
+		{
+			get => _ClockText;
+			private set
+			{
+				if (_ClockText != value)
+				{
+					_ClockText = value;
+					NotifyPropertyChanged(nameof(ClockText));
+				}
+			}
+		}
+
 		public Rectangle DragArea
 			=> DragAreaRectangle;
 
@@ -74,10 +94,23 @@ namespace Files.App.UserControls.TabBar
 			tabHoverTimer.Interval = TimeSpan.FromMilliseconds(Constants.DragAndDrop.HoverToOpenTimespan);
 			tabHoverTimer.Tick += TabHoverSelected;
 
+			clockTimer.Tick += (_, _) => UpdateClock();
+			Loaded += (_, _) => UpdateClock();
+			Unloaded += (_, _) => clockTimer.Stop();
+
 			AppearanceSettingsService.PropertyChanged += (s, e) =>
 			{
 				switch (e.PropertyName)
 				{
+					case nameof(AppearanceSettingsService.ShowClock):
+						NotifyPropertyChanged(nameof(ShowClock));
+						UpdateClock();
+						break;
+					case nameof(AppearanceSettingsService.ClockUse24HourFormat):
+					case nameof(AppearanceSettingsService.ClockShowSeconds):
+					case nameof(AppearanceSettingsService.ClockShowDate):
+						UpdateClock();
+						break;
 					case nameof(AppearanceSettingsService.ShowTabActions):
 						NotifyPropertyChanged(nameof(ShowTabActionsButton));
 						break;
@@ -425,6 +458,33 @@ namespace Files.App.UserControls.TabBar
 						iconControl.Content = tabViewItem.IconSource?.CreateIconElement();
 				});
 			}
+		}
+
+		private void UpdateClock()
+		{
+			if (!AppearanceSettingsService.ShowClock)
+			{
+				clockTimer.Stop();
+				return;
+			}
+
+			var now = DateTime.Now;
+			var timeFormat = (AppearanceSettingsService.ClockUse24HourFormat, AppearanceSettingsService.ClockShowSeconds) switch
+			{
+				(true, true) => "HH:mm:ss",
+				(true, false) => "HH:mm",
+				(false, true) => "h:mm:ss tt",
+				(false, false) => "h:mm tt",
+			};
+
+			var text = now.ToString(timeFormat);
+			if (AppearanceSettingsService.ClockShowDate)
+				text = $"{now:ddd, MMM d}  {text}";
+
+			ClockText = text;
+
+			if (!clockTimer.IsEnabled)
+				clockTimer.Start();
 		}
 
 		private void DragAreaRectangle_Loaded(object sender, RoutedEventArgs e)

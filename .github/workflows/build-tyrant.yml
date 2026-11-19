@@ -1,0 +1,104 @@
+# Builds the installable Files Tyrant package (x64) and, when asked, publishes a GitHub Release.
+name: Build Files Tyrant
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['*.md', '.github/README.md']
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Publish a GitHub Release with this tag (leave empty to only build)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+env:
+  CONFIGURATION: Release
+  PLATFORM: x64
+  APP_PROJECT_PATH: '${{ github.workspace }}\src\Files.App\Files.App.csproj'
+  SOLUTION_PATH: '${{ github.workspace }}\Files.slnx'
+  APPX_PACKAGE_DIR: '${{ github.workspace }}\artifacts\AppxPackages\'
+  CERT_PATH: '${{ github.workspace }}\FilesTyrant.pfx'
+
+jobs:
+  build:
+    runs-on: windows-2025-vs2026
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v6
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v3
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+
+    - name: Restore signing certificate
+      shell: pwsh
+      run: |
+        [IO.File]::WriteAllBytes($env:CERT_PATH, [Convert]::FromBase64String($env:PFX_BASE64))
+      env:
+        PFX_BASE64: ${{ secrets.FILES_TYRANT_PFX_BASE64 }}
+
+    - name: Restore Files
+      shell: pwsh
+      run: |
+        msbuild $env:SOLUTION_PATH `
+          -t:Restore `
+          -p:Platform=$env:PLATFORM `
+          -p:Configuration=$env:CONFIGURATION `
+          -p:PublishReadyToRun=true `
+          -v:quiet
+
+    - name: Build and package Files Tyrant
+      shell: pwsh
+      run: |
+        msbuild $env:APP_PROJECT_PATH `
+          -t:Build `
+          -p:Configuration=$env:CONFIGURATION `
+          -p:Platform=$env:PLATFORM `
+          -p:AppxBundlePlatforms=$env:PLATFORM `
+          -p:AppxBundle=Always `
+          -p:GenerateAppxPackageOnBuild=true `
+          -p:UapAppxPackageBuildMode=SideloadOnly `
+          -p:AppxPackageDir=$env:APPX_PACKAGE_DIR `
+          -p:AppxPackageSigningEnabled=true `
+          -p:PackageCertificateKeyFile=$env:CERT_PATH `
+          -p:PackageCertificatePassword=$env:PFX_PASSWORD `
+          -p:PackageCertificateThumbprint="" `
+          -v:minimal
+      env:
+        PFX_PASSWORD: ${{ secrets.FILES_TYRANT_PFX_PASSWORD }}
+
+    - name: Assemble the download
+      shell: pwsh
+      run: |
+        $out = "$env:GITHUB_WORKSPACE\dist\Files-Tyrant-x64"
+        New-Item -ItemType Directory -Force -Path $out | Out-Null
+        Get-ChildItem $env:APPX_PACKAGE_DIR -Recurse | Select-Object -First 80 | ForEach-Object { Write-Host $_.FullName }
+        Copy-Item "$env:APPX_PACKAGE_DIR*" $out -Recurse -Force
+        Copy-Item "$env:GITHUB_WORKSPACE\FilesTyrant.cer" $out
+        Copy-Item "$env:GITHUB_WORKSPACE\tyrant\*" $out
+        Compress-Archive -Path "$out\*" -DestinationPath "$env:GITHUB_WORKSPACE\dist\Files-Tyrant-x64.zip" -Force
+        Get-Item "$env:GITHUB_WORKSPACE\dist\Files-Tyrant-x64.zip" | ForEach-Object { Write-Host "$($_.Name): $([math]::Round($_.Length / 1MB, 1)) MB" }
+
+    - name: Upload the download as an artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: Files-Tyrant-x64
+        path: dist/Files-Tyrant-x64.zip
+
+    - name: Publish release
+      if: ${{ inputs.release_tag != '' }}
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ inputs.release_tag }}
+      run: |
+        $notes = Get-Content "$env:GITHUB_WORKSPACE\tyrant\RELEASE_NOTES.md" -Raw
+        gh release create $env:TAG "dist/Files-Tyrant-x64.zip" --repo $env:GITHUB_REPOSITORY --title "Files Tyrant $env:TAG" --notes $notes --target $env:GITHUB_SHA

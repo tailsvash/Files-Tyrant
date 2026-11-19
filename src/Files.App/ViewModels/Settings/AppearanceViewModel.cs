@@ -436,6 +436,62 @@ namespace Files.App.ViewModels.Settings
 			}
 		}
 
+		public bool ShowClock
+		{
+			get => UserSettingsService.AppearanceSettingsService.ShowClock;
+			set
+			{
+				if (value != UserSettingsService.AppearanceSettingsService.ShowClock)
+				{
+					UserSettingsService.AppearanceSettingsService.ShowClock = value;
+
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		public bool ClockUse24HourFormat
+		{
+			get => UserSettingsService.AppearanceSettingsService.ClockUse24HourFormat;
+			set
+			{
+				if (value != UserSettingsService.AppearanceSettingsService.ClockUse24HourFormat)
+				{
+					UserSettingsService.AppearanceSettingsService.ClockUse24HourFormat = value;
+
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		public bool ClockShowSeconds
+		{
+			get => UserSettingsService.AppearanceSettingsService.ClockShowSeconds;
+			set
+			{
+				if (value != UserSettingsService.AppearanceSettingsService.ClockShowSeconds)
+				{
+					UserSettingsService.AppearanceSettingsService.ClockShowSeconds = value;
+
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		public bool ClockShowDate
+		{
+			get => UserSettingsService.AppearanceSettingsService.ClockShowDate;
+			set
+			{
+				if (value != UserSettingsService.AppearanceSettingsService.ClockShowDate)
+				{
+					UserSettingsService.AppearanceSettingsService.ClockShowDate = value;
+
+					OnPropertyChanged();
+				}
+			}
+		}
+
 		public bool ShowShelfPaneToggleButton
 		{
 			get => UserSettingsService.AppearanceSettingsService.ShowShelfPaneToggleButton;

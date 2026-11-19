@@ -118,6 +118,26 @@ namespace Files.App.Data.Contracts
 		bool ShowTabActions { get; set; }
 
 		/// <summary>
+		/// Gets or sets a value whether the clock should be displayed in the title bar.
+		/// </summary>
+		bool ShowClock { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value whether the clock should use the 24-hour format.
+		/// </summary>
+		bool ClockUse24HourFormat { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value whether the clock should display seconds.
+		/// </summary>
+		bool ClockShowSeconds { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value whether the clock should display the date.
+		/// </summary>
+		bool ClockShowDate { get; set; }
+
+		/// <summary>
 		/// Gets or sets a value whether the shelf pane toggle button should be displayed.
 		/// </summary>
 		bool ShowShelfPaneToggleButton { get; set; }
