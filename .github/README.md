@@ -1,3 +1,24 @@
+# Files Tyrant
+
+> **Unofficial personal fork of [Files](https://github.com/files-community/Files) by the Files Community**, based on Files **4.3.3** (main branch, Nov 2026).
+> Not affiliated with, or endorsed by, the Files team. Please **do not** send Files Tyrant support questions or bug reports to the upstream project.
+
+Licensed under the same licenses as upstream (see [LICENSE-MIT](../LICENSE-MIT) and [LICENSE-MPL](../LICENSE-MPL)); original copyright notices are unchanged.
+These modifications were made with AI assistance (Grok Bot).
+
+## Download
+**[Get the latest Files Tyrant release (Windows 10/11, 64-bit)](https://github.com/tailsvash/Files-Tyrant/releases/latest)** — unzip it, double-click `Install-Files-Tyrant.cmd`, say Yes to the admin prompt, then open **Files Tyrant** from the Start menu. Full steps are in the release notes.
+
+## Changes from Files
+- **Clock in the title bar**: always visible at the top right, next to your tabs. Settings > Appearance > *Show clock in the title bar* lets you turn it on/off, pick 12-hour or 24-hour time, show seconds, and show the date.
+- **Custom backgrounds** (already built into Files, so you can use them out of the box): Settings > Appearance > Background image — pick an image, set opacity, fit and alignment — or right-click any image and choose *Set as app background*.
+- New name (Files Tyrant) and its own signing certificate, so it installs on its own and gets no updates or telemetry from upstream.
+
+## Build it yourself
+Pushes to `main` are built by GitHub Actions (`Build Files Tyrant`). The downloadable package is signed with the certificate in [`FilesTyrant.cer`](../FilesTyrant.cer), which the installer script trusts for you.
+
+---
+
 <p align="center">
   <img alt="Files hero image" src="./assets/ReadmeHero.png" />
 </p>
