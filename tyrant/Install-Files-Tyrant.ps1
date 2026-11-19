@@ -12,19 +12,25 @@ if (-not $isAdmin) {
 
 try {
     $cer = Join-Path $here 'FilesTyrant.cer'
-    $bundle = Get-ChildItem $here -Filter *.msixbundle -Recurse | Where-Object { $_.DirectoryName -notmatch 'Dependencies' } | Select-Object -First 1
+    $bundle = Get-ChildItem $here -Filter *.msixbundle -Recurse | Select-Object -First 1
     if (-not $bundle) { throw 'Could not find the Files Tyrant package next to this script. Did you unzip everything first?' }
 
-    Write-Host 'Step 1/2: trusting the Files Tyrant signing certificate (this is what lets Windows install it)...'
+    Write-Host 'Step 1/3: trusting the Files Tyrant signing certificate (this is what lets Windows install it)...'
     Import-Certificate -FilePath $cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople | Out-Null
 
-    Write-Host 'Step 2/2: installing Files Tyrant...'
-    $deps = @(Get-ChildItem $here -Filter *.appx -Recurse | Where-Object { $_.DirectoryName -match 'x64' -or $_.DirectoryName -notmatch 'arm|x86' } | Select-Object -ExpandProperty FullName)
-    if ($deps.Count -gt 0) {
-        Add-AppxPackage -Path $bundle.FullName -DependencyPath $deps -ForceUpdateFromAnyVersion
-    } else {
-        Add-AppxPackage -Path $bundle.FullName -ForceUpdateFromAnyVersion
+    Write-Host 'Step 2/3: making sure the Windows App Runtime is installed (skipped if you already have it)...'
+    foreach ($name in 'Main', 'Singleton', 'DDLM', 'Framework') {
+        $file = Get-ChildItem (Join-Path $here 'WindowsAppRuntime') -Filter *.msix -ErrorAction SilentlyContinue |
+            Where-Object { if ($name -eq 'Framework') { $_.Name -eq 'Microsoft.WindowsAppRuntime.2.msix' } else { $_.Name -like "*.$name.*" } } |
+            Select-Object -First 1
+        if ($file) {
+            try { Add-AppxPackage -Path $file.FullName -ErrorAction Stop }
+            catch { Write-Host "  (skipped $($file.Name): $($_.Exception.Message.Split([char]10)[0]))" -ForegroundColor DarkGray }
+        }
     }
+
+    Write-Host 'Step 3/3: installing Files Tyrant...'
+    Add-AppxPackage -Path $bundle.FullName -ForceUpdateFromAnyVersion
 
     Write-Host ''
     Write-Host 'Done! Search for "Files Tyrant" in the Start menu.' -ForegroundColor Green

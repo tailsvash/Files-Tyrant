@@ -83,6 +83,13 @@ jobs:
         Get-ChildItem $env:APPX_PACKAGE_DIR -Recurse | Select-Object -First 80 | ForEach-Object { Write-Host $_.FullName }
         Copy-Item "$env:APPX_PACKAGE_DIR*" $out -Recurse -Force
         Copy-Item "$env:GITHUB_WORKSPACE\FilesTyrant.cer" $out
+
+        # Bundle the Windows App Runtime so the install works offline
+        $rt = Get-ChildItem "$env:USERPROFILE\.nuget\packages" -Recurse -Filter 'Microsoft.WindowsAppRuntime*.msix' -ErrorAction SilentlyContinue |
+          Where-Object { $_.DirectoryName -match 'win10-x64$' }
+        if (-not $rt) { throw 'Windows App Runtime packages not found in the NuGet cache' }
+        New-Item -ItemType Directory -Force -Path "$out\WindowsAppRuntime" | Out-Null
+        $rt | ForEach-Object { Write-Host $_.FullName; Copy-Item $_.FullName "$out\WindowsAppRuntime" }
         Copy-Item "$env:GITHUB_WORKSPACE\tyrant\*" $out
         Compress-Archive -Path "$out\*" -DestinationPath "$env:GITHUB_WORKSPACE\dist\Files-Tyrant-x64.zip" -Force
         Get-Item "$env:GITHUB_WORKSPACE\dist\Files-Tyrant-x64.zip" | ForEach-Object { Write-Host "$($_.Name): $([math]::Round($_.Length / 1MB, 1)) MB" }
